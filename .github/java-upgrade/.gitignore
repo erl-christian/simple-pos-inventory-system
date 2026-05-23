@@ -1,0 +1,10 @@
+# .gitignore
+# Backend exclusions
+backend/target/
+backend/.idea/
+backend/*.iml
+
+# Frontend exclusions
+frontend/node_modules/
+frontend/dist/
+frontend/.env.local
