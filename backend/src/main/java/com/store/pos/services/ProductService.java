@@ -11,4 +11,8 @@ public interface ProductService {
     ProductResponseDto getProductId(Long id);
 
     List<ProductResponseDto> getAllProducts();
+
+    ProductResponseDto updateProduct(Long id, ProductRequestDto request);
+    ProductResponseDto getProductBarcodeById(String barcode);
+    void deleteProduct(Long id);
 }  

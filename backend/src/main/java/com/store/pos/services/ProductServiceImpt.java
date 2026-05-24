@@ -1,18 +1,17 @@
 package com.store.pos.services;
 
-import com.store.pos.dto.ProductRequestDto;
-import com.store.pos.entity.Product;
-import com.store.pos.repository.ProductRepository;
-
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
+import com.store.pos.dto.ProductRequestDto;
 import com.store.pos.dto.ProductResponseDto;
+import com.store.pos.entity.Product;
+import com.store.pos.repository.ProductRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +22,9 @@ public class ProductServiceImpt implements ProductService{
     @Override
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto request){
+        if(request == null){
+            throw new IllegalArgumentException("Request cannot be null!");
+        }
         if(productRepository.existsByBarcode(request.getBarcode())){
             throw new RuntimeException("A product with this barcode already exist");
         }
@@ -38,6 +40,9 @@ public class ProductServiceImpt implements ProductService{
     @Override
     @Transactional(readOnly = true)
     public ProductResponseDto getProductId(Long id){
+        if(id == null){
+            throw new IllegalArgumentException("ID cannot be null!");
+        }
         Product product = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found with the id of " + id));
         return mapToResponseDto(product);
     }
@@ -57,6 +62,51 @@ public class ProductServiceImpt implements ProductService{
         dto.setPrice(product.getPrice());
         dto.setQuantity(product.getQuantity());
         return dto;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductResponseDto updateProduct(Long id, ProductRequestDto request){
+
+        if(id == null){
+            throw new IllegalArgumentException("ID cannot be null!");
+        }
+
+        Product existingProduct = productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found by ID: " + id));
+
+        existingProduct.setName(request.getName());
+        existingProduct.setDescription(request.getDescription());
+        existingProduct.setPrice(request.getPrice());
+        existingProduct.setQuantity(request.getQuantity());
+
+        Product updateProduct = productRepository.save(existingProduct);
+
+        return mapToResponseDto(updateProduct);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ProductResponseDto getProductBarcodeById(String barcode){
+        if(barcode == null){
+            throw new IllegalArgumentException("Barcode should not be null!");
+        }
+
+        Product product = productRepository.findByBarcode(barcode).orElseThrow(() -> new RuntimeException("Product not found by Barcode: " + barcode));
+
+        return mapToResponseDto(product);
+    }
+
+    @Override
+    @Transactional
+    public void deleteProduct(Long id){
+        if(id == null){
+            throw new IllegalArgumentException("ID cannot be null!");
+        }
+        if(!productRepository.existsById(id)){
+            throw new RuntimeException("Cannot delete. Product not found with ID: "+ id);
+        }
+
+        productRepository.deleteById(id);
     }
 
 }
