@@ -30,7 +30,10 @@ public class ProductServiceImpt implements ProductService{
         }
 
         Product product = Product.builder().barcode(request.getBarcode()).name(request.getName()).description(request.getDescription()).price(request.getPrice()).quantity(request.getQuantity()).build();
-
+        
+        if(product == null){
+            throw new IllegalArgumentException("Product cannot be null!");
+        }
 
         Product savedProduct = productRepository.save(product);
 
